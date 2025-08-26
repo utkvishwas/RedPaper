@@ -87,7 +87,7 @@ Once installed with the installer or batch script, the application will:
 ### Manual Operation
 
 ```cmd
-wallpaper-changer.exe
+redpaper.exe
 ```
 
 The application will log its actions to the console and exit with appropriate status codes.

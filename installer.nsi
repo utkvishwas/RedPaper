@@ -76,7 +76,7 @@ Section "Main Application" SecApp
     WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\RedPaper" "DisplayName" "RedPaper"
     WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\RedPaper" "UninstallString" "$INSTDIR\Uninstall.exe"
     WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\RedPaper" "DisplayVersion" "1.0.0"
-    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\RedPaper" "Publisher" "Your Company"
+    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\RedPaper" "Publisher" "RedPaper"
     WriteRegDWord HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\RedPaper" "NoModify" 1
     WriteRegDWord HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\RedPaper" "NoRepair" 1
 

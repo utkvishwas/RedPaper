@@ -1,7 +1,17 @@
-# RedPaper
+<h1 align="center">RedPaper</h1>
+<h3 align="center">A Windows application that automatically changes your desktop wallpaper by fetching images from Reddit subreddits. The application includes a 24-hour timer to prevent excessive downloads and comes with a complete Windows installer.</h3>
 
-A Windows application that automatically changes your desktop wallpaper by fetching images from Reddit subreddits. The application includes a 24-hour timer to prevent excessive downloads and comes with a complete Windows installer.
+---
 
+<p align="center">
+
+<img width="100%" alt="Frame 4" src="https://github.com/user-attachments/assets/fbe2c57c-85c4-49a3-a6d8-d2ac4de9bcc8" />
+
+<br/>
+
+   
+---
+   
 ## Features
 
 - 🖼️ Automatically fetches wallpapers from Reddit (default: r/wallpaper)

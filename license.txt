@@ -1,0 +1,33 @@
+END-USER LICENSE AGREEMENT FOR REDPAPER
+
+This End-User License Agreement ("EULA") is a legal agreement between you and the developer of RedPaper.
+
+By installing, copying, or otherwise using this software, you agree to be bound by the terms of this EULA.
+
+1. GRANT OF LICENSE
+The developer grants you a non-exclusive, non-transferable license to use this software for personal, non-commercial purposes.
+
+2. RESTRICTIONS
+You may not:
+- Modify, reverse engineer, decompile, or disassemble the software
+- Redistribute the software without permission
+- Use the software for commercial purposes without a separate license
+- Remove or alter any copyright notices
+
+3. DATA COLLECTION AND PRIVACY
+This software:
+- Downloads images from Reddit based on your configuration
+- Stores timestamp information locally on your computer
+- Does not collect or transmit personal information
+- Does not track your usage or behavior
+
+4. NO WARRANTY
+This software is provided "as is" without warranty of any kind. The developer shall not be liable for any damages arising from the use of this software.
+
+5. TERMINATION
+This license is effective until terminated. You may terminate it at any time by uninstalling the software.
+
+6. GOVERNING LAW
+This agreement shall be governed by the laws of your jurisdiction.
+
+By installing this software, you acknowledge that you have read this agreement and agree to its terms.

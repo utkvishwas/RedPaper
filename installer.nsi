@@ -27,6 +27,7 @@ RequestExecutionLevel admin
 !insertmacro MUI_PAGE_WELCOME
 !insertmacro MUI_PAGE_LICENSE "license.txt"
 !insertmacro MUI_PAGE_DIRECTORY
+!insertmacro MUI_PAGE_COMPONENTS
 !insertmacro MUI_PAGE_INSTFILES
 !insertmacro MUI_PAGE_FINISH
 
@@ -37,6 +38,14 @@ RequestExecutionLevel admin
 
 ;Languages
 !insertmacro MUI_LANGUAGE "English"
+
+;Component descriptions
+!insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
+    !insertmacro MUI_DESCRIPTION_TEXT ${SecApp} "Installs the main RedPaper application files."
+    !insertmacro MUI_DESCRIPTION_TEXT ${SecTask} "Creates a scheduled task to automatically run RedPaper every hour."
+    !insertmacro MUI_DESCRIPTION_TEXT ${SecShortcut} "Creates a desktop shortcut for easy access to RedPaper."
+    !insertmacro MUI_DESCRIPTION_TEXT ${SecStartMenu} "Creates Start Menu shortcuts for RedPaper and its uninstaller."
+!insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 ;Version Information
 VIProductVersion "1.0.0.0"
@@ -55,12 +64,13 @@ Section "Main Application" SecApp
 
     ;Create the application directory
     CreateDirectory "$INSTDIR"
-    CreateDirectory "$INSTDIR\data"
-    CreateDirectory "$INSTDIR\logs"
 
     ;Copy the main executable
     DetailPrint "Installing main application..."
     File "redpaper.exe"
+    
+    ;Copy the icon file for shortcuts
+    File "installer.ico"
 
     ;Copy additional files if any
     ;File "config.ini"
@@ -70,6 +80,9 @@ Section "Main Application" SecApp
 
     ;Store installation folder
     WriteRegStr HKCU "Software\RedPaper" "" $INSTDIR
+    
+    ;Store application icon path for Windows shell
+    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\RedPaper" "DisplayIcon" "$INSTDIR\installer.ico"
 
     ;Create uninstaller
     WriteUninstaller "$INSTDIR\Uninstall.exe"
@@ -88,7 +101,8 @@ Section "Create Scheduled Task" SecTask
     ;Create a batch file to run the program
     FileOpen $0 "$INSTDIR\run_redpaper.bat" w
     FileWrite $0 '@echo off$\r$\n'
-    FileWrite $0 '"$INSTDIR\redpaper.exe" >> "$INSTDIR\logs\redpaper.log" 2>&1$\r$\n'
+    FileWrite $0 'if not exist "%LOCALAPPDATA%\RedPaper\logs" mkdir "%LOCALAPPDATA%\RedPaper\logs"$\r$\n'
+    FileWrite $0 '"$INSTDIR\redpaper.exe" >> "%LOCALAPPDATA%\RedPaper\logs\redpaper.log" 2>&1$\r$\n'
     FileWrite $0 'exit /b %errorlevel%$\r$\n'
     FileClose $0
 
@@ -113,7 +127,7 @@ Section "Create Scheduled Task" SecTask
     FileWrite $0 '$\r$\n'
     FileWrite $0 '# Use correct LogonType$\r$\n'
     FileWrite $0 '$$principal = New-ScheduledTaskPrincipal -UserId $$env:USERNAME -LogonType Interactive$\r$\n'
-    FileWrite $0 '$$settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable$\r$\n'
+    FileWrite $0 '$$settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable -RunOnlyIfNetworkAvailable$\r$\n'
     FileWrite $0 '$\r$\n'
     FileWrite $0 '# Create the task with multiple triggers$\r$\n'
     FileWrite $0 '$$task = New-ScheduledTask -Action $$action -Trigger @($$triggerStartup, $$triggerHourly) -Principal $$principal -Settings $$settings$\r$\n'
@@ -143,7 +157,23 @@ Section "Create Scheduled Task" SecTask
 SectionEnd
 
 Section "Desktop Shortcut" SecShortcut
-    CreateShortCut "$DESKTOP\RedPaper.lnk" "$INSTDIR\redpaper.exe" "" "$INSTDIR\redpaper.exe" 0
+    SectionIn 1 2 3
+    CreateShortCut "$DESKTOP\RedPaper.lnk" "$INSTDIR\redpaper.exe" "" "$INSTDIR\installer.ico" 0
+SectionEnd
+
+Section "Start Menu Shortcuts" SecStartMenu
+    SectionIn 1 2 3
+    ;Create Start Menu directory
+    CreateDirectory "$SMPROGRAMS\RedPaper"
+    
+    ;Create Start Menu shortcut
+    CreateShortCut "$SMPROGRAMS\RedPaper\RedPaper.lnk" "$INSTDIR\redpaper.exe" "" "$INSTDIR\installer.ico" 0
+    
+    ;Create uninstall shortcut in Start Menu
+    CreateShortCut "$SMPROGRAMS\RedPaper\Uninstall RedPaper.lnk" "$INSTDIR\Uninstall.exe" "" "$INSTDIR\installer.ico" 0
+    
+    ;Write Start Menu registry key for proper uninstall
+    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\RedPaper" "StartMenuFolder" "RedPaper"
 SectionEnd
 
 ;Uninstaller Section
@@ -157,10 +187,9 @@ Section "Uninstall"
     DetailPrint "Removing application files..."
     Delete "$INSTDIR\redpaper.exe"
     Delete "$INSTDIR\Uninstall.exe"
+    Delete "$INSTDIR\installer.ico"
     Delete "$INSTDIR\run_redpaper.bat"
     Delete "$INSTDIR\create_task.ps1"
-    RMDir "$INSTDIR\data"
-    RMDir "$INSTDIR\logs"
     RMDir "$INSTDIR"
 
     ;Remove user data (ask user first)
@@ -172,6 +201,11 @@ Section "Uninstall"
 
     ;Remove desktop shortcut
     Delete "$DESKTOP\RedPaper.lnk"
+    
+    ;Remove Start Menu shortcuts (if they exist)
+    Delete "$SMPROGRAMS\RedPaper\RedPaper.lnk"
+    Delete "$SMPROGRAMS\RedPaper\Uninstall RedPaper.lnk"
+    RMDir "$SMPROGRAMS\RedPaper"
 
     ;Remove registry entries
     DeleteRegKey HKCU "Software\RedPaper"

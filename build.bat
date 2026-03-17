@@ -29,7 +29,7 @@ echo Building Go application...
 echo.
 
 REM Build the Go application for Windows
-go build -ldflags "-s -w -X main.version=%VERSION%" -o "%OUTPUT_DIR%\%EXE_NAME%" .
+go build -ldflags "-s -w -X main.version=%VERSION% -H windowsgui" -o "%OUTPUT_DIR%\%EXE_NAME%" .
 if %errorlevel% neq 0 (
     echo Build failed!
     pause

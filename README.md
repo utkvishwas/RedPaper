@@ -1,5 +1,5 @@
 <h1 align="center">RedPaper</h1>
-<h3 align="center">A Windows application that automatically changes your desktop wallpaper by fetching images from Reddit subreddits. The application includes a 24-hour timer to prevent excessive downloads and comes with a complete Windows installer.</h3>
+<h3 align="center">A lightweight Windows system tray application that automatically changes your desktop wallpaper by fetching top images from any Reddit subreddit.</h3>
 
 ---
 
@@ -9,35 +9,52 @@
 
 <br/>
 
-   
 ---
-   
+
 ## Features
 
-- 🖼️ Automatically fetches wallpapers from Reddit (default: r/wallpaper)
-- ⏰ 24-hour cooldown period between wallpaper changes
-- 🔄 Handles PC shutdowns/restarts properly (tracks time since last change)
-- 📥 Downloads images to `Pictures/redpaper_wallpapers/`
-- 🪟 Native Windows desktop wallpaper integration
-- 📅 Scheduled task for automatic operation
+- 🖼️ Fetches top wallpapers from any Reddit subreddit (default: r/wallpaper)
+- 🔔 Runs silently as a **system tray icon** — no terminal windows, ever
+- ⚙️ Right-click tray menu to change all settings on the fly
+- ⏱️ Configurable wallpaper change interval (6h / 12h / 24h / 48h)
+- � Configurable Reddit time period (Day / Week / Month / All Time)
+- 🚀 Optional **Start with Windows** toggle built into the tray menu
+- 📥 Downloads wallpapers to `Pictures\redpaper_wallpapers\`
+- 🗜️ Auto-compresses oversized images for Windows compatibility
 - 🛠️ Complete Windows installer with uninstaller
 
 ## How It Works
 
-The application stores a timestamp of the last successful wallpaper change in `%APPDATA%\RedPaper\last_run.txt`. On each run, it:
+RedPaper runs as a persistent background process in the system tray. It uses an internal Go timer — no Windows Task Scheduler required. On startup it:
 
-1. Checks if 24 hours have passed since the last change
-2. If yes: Downloads a new wallpaper from Reddit and sets it
-3. If no: Logs the remaining time and exits gracefully
+1. Loads your settings from `%LOCALAPPDATA%\RedPaper\config.json`
+2. Calculates the time remaining until the next wallpaper change
+3. Waits silently, then fetches a top image post from your chosen subreddit
+4. Downloads, optionally compresses, and sets it as your desktop wallpaper
+5. Saves the timestamp and sleeps until the next interval
 
-This ensures you get fresh wallpapers regularly without overwhelming the Reddit servers or your bandwidth.
+All activity is logged to `%LOCALAPPDATA%\RedPaper\redpaper.log`.
+
+## Tray Menu
+
+Right-click the RedPaper icon in the system tray to access:
+
+| Option                    | Description                                            |
+| ------------------------- | ------------------------------------------------------ |
+| **Change Wallpaper Now**  | Immediately fetch and apply a new wallpaper            |
+| **Subreddit: r/...**      | Click to type a new subreddit name                     |
+| **Interval**              | Choose how often to change: 6h / 12h / 24h / 48h       |
+| **Fetch Period**          | Reddit top posts period: Day / Week / Month / All Time |
+| **Start with Windows**    | Toggle automatic launch at login                       |
+| **Open Wallpaper Folder** | Browse your saved wallpapers in Explorer               |
+| **Quit**                  | Exit RedPaper                                          |
 
 ## Building and Installation
 
 ### Prerequisites
 
-- Go 1.19 or later
-- Windows 7 or later (for the compiled application)
+- Go 1.21 or later
+- Windows 7 or later
 - NSIS (optional, for creating the installer)
 
 ### Build Instructions
@@ -51,16 +68,14 @@ This ensures you get fresh wallpapers regularly without overwhelming the Reddit 
    ```
 
    This will:
-
-   - Compile the Go application for Windows
+   - Compile the Go application (GUI mode, no console window)
    - Create a Windows installer (if NSIS is installed)
-   - Generate a ZIP package with all files
+   - Generate a ZIP package
 
-   The generated files will be:
-
-   - `build\redpaper.exe` (Standalone executable)
-   - `build\RedPaper_Installer.exe` (Windows installer)
-   - `build\RedPaper_v1.0.0.zip` (ZIP package)
+   Output files:
+   - `build\redpaper.exe` — Standalone executable
+   - `build\RedPaper_Installer.exe` — Windows installer (requires NSIS)
+   - `build\RedPaper_v1.0.1.zip` — ZIP package
 
 ### Installation Options
 
@@ -69,98 +84,76 @@ This ensures you get fresh wallpapers regularly without overwhelming the Reddit 
 - Run `RedPaper_Installer.exe`
 - Follow the installation wizard
 - The installer will:
-  - Install the application to Program Files
-  - Create a scheduled task to run every hour
+  - Copy the application to `Program Files\RedPaper\`
   - Add an entry to Add/Remove Programs
-  - Create a desktop shortcut
+  - Create a desktop and Start Menu shortcut
+  - Offer to launch RedPaper immediately
+- After launch, right-click the tray icon and enable **Start with Windows** if desired
 
 #### Option 2: Manual Installation
 
 - Run `install.bat` as administrator
-- This will install the application and set up the scheduled task
+- RedPaper will be copied to `Program Files\RedPaper\` and launched automatically
 
-#### Option 3: Portable Installation
+#### Option 3: Portable
 
-- Just run `redpaper.exe` directly
-- No installation required, but you'll need to run it manually
-
-## Usage
-
-### Automatic (Scheduled Task)
-
-Once installed with the installer or batch script, the application will:
-
-- Run every hour via Windows Task Scheduler
-- Check if 24 hours have passed since last wallpaper change
-- Download and set new wallpaper only when needed
-
-### Manual Operation
-
-```cmd
-redpaper.exe
-```
-
-The application will log its actions to the console and exit with appropriate status codes.
+- Run `redpaper.exe` directly from any folder
+- A tray icon will appear — no installation needed
 
 ## Configuration
 
-### Changing the Subreddit
+All settings are changed via the **system tray menu** — no file editing required.
 
-Edit the main.go file and change the subreddit parameter in the `main()` function:
+Settings are saved automatically to `%LOCALAPPDATA%\RedPaper\config.json`:
 
-```go
-changer := NewRedPaper("your_subreddit")
-```
-
-### Adjusting the Time Period
-
-The application fetches "top" posts from the past day by default. You can modify this in the `Run()` method:
-
-```go
-wallpaperData, err := rwc.GetTopWallpaper("week", 10) // Change "day" to "week", "month", etc.
+```json
+{
+  "subreddit": "wallpaper",
+  "interval_hours": 24,
+  "time_period": "day",
+  "last_run": "2024-01-01T12:00:00Z"
+}
 ```
 
 ## File Locations
 
-- **Application**: `%PROGRAMFILES%\RedPaper\`
-- **User Data**: `%APPDATA%\RedPaper\`
-- **Wallpapers**: `%USERPROFILE%\Pictures\redpaper_wallpapers\`
-- **Logs**: `%PROGRAMFILES%\RedPaper\logs\`
+| Path                                          | Contents              |
+| --------------------------------------------- | --------------------- |
+| `%PROGRAMFILES%\RedPaper\`                    | Application files     |
+| `%LOCALAPPDATA%\RedPaper\config.json`         | Settings              |
+| `%LOCALAPPDATA%\RedPaper\redpaper.log`        | Activity log          |
+| `%USERPROFILE%\Pictures\redpaper_wallpapers\` | Downloaded wallpapers |
 
 ## Uninstallation
 
 ### Via Windows Add/Remove Programs
 
-- Search for "RedPaper"
-- Click Uninstall
+- Search for "RedPaper" and click Uninstall
 
 ### Manual Uninstallation
 
 - Run `uninstall.bat` as administrator
-- Choose whether to keep your downloaded wallpapers
+- Choose whether to keep your downloaded wallpapers and settings
+
+The uninstaller will stop the running process, remove the startup registry entry, and clean up all files.
 
 ## Troubleshooting
 
-### Application Won't Start
+### Tray icon doesn't appear
 
-- Ensure you're running as administrator (for installation)
-- Check Windows Event Viewer for error details
+- Check if `redpaper.exe` is already running in Task Manager
+- Only one instance is allowed; a second launch exits silently
 
-### Scheduled Task Not Working
+### No wallpaper changes
 
-- Open Task Scheduler (`taskschd.msc`)
-- Look for "RedPaper" task
-- Check the task's history for errors
-
-### No Wallpaper Changes
-
-- Check the log file: `%PROGRAMFILES%\RedPaper\logs\redpaper.log`
-- Ensure internet connection is available
-- Verify the subreddit exists and has images
+- Check the log: `%LOCALAPPDATA%\RedPaper\redpaper.log`
+- Ensure internet access is available
+- Try **Change Wallpaper Now** from the tray menu to test immediately
+- Verify the subreddit has direct image posts (`.jpg`, `.png`, etc.)
 
 ### Build Issues
 
-- Ensure Go is installed and in your PATH
+- Ensure Go 1.21+ is installed and in your PATH
 - For installer creation, install NSIS from https://nsis.sourceforge.io/
 
 ## License
@@ -169,8 +162,10 @@ This project is provided as-is for personal use. See `license.txt` for details.
 
 ## Technical Details
 
-- Written in Go for cross-platform compatibility
-- Uses Windows API for native wallpaper setting
-- Implements proper error handling and logging
-- Scheduled tasks run with user privileges
-- Stores timestamps in Unix format for reliability
+- Written in Go — single self-contained binary, no runtime dependencies
+- System tray via [`getlantern/systray`](https://github.com/getlantern/systray)
+- Native input dialogs via [`ncruces/zenity`](https://github.com/ncruces/zenity)
+- Wallpaper set via `SystemParametersInfoW` (Windows API, no external tools)
+- Startup toggle writes directly to `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`
+- Single-instance enforcement via a named Win32 mutex
+- No Windows Task Scheduler dependency

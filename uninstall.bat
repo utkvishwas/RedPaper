@@ -1,6 +1,5 @@
 @echo off
 REM RedPaper Uninstallation Script
-REM This script removes the wallpaper changer and scheduled task
 
 echo RedPaper Uninstallation
 echo =======================
@@ -21,12 +20,16 @@ set INSTALL_DIR=%PROGRAMFILES%\RedPaper
 
 echo Removing from: %INSTALL_DIR%
 
-REM Remove scheduled task
-echo Removing scheduled task...
+REM Stop running instance
+echo Stopping RedPaper if running...
+taskkill /f /im redpaper.exe >nul 2>&1
+
+REM Remove startup registry key
+echo Removing startup entry...
+reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v "RedPaper" /f >nul 2>&1
+
+REM Remove old scheduled task if it exists
 schtasks /delete /tn "RedPaper" /f >nul 2>&1
-if %errorlevel% neq 0 (
-    echo Could not find or remove scheduled task (it may not exist)
-)
 
 REM Ask user about removing data
 echo.
@@ -37,8 +40,8 @@ goto :skipData
 
 :removeData
 echo Removing user data...
-if exist "%APPDATA%\RedPaper" (
-    rmdir /s /q "%APPDATA%\RedPaper"
+if exist "%LOCALAPPDATA%\RedPaper" (
+    rmdir /s /q "%LOCALAPPDATA%\RedPaper"
 )
 if exist "%USERPROFILE%\Pictures\redpaper_wallpapers" (
     rmdir /s /q "%USERPROFILE%\Pictures\redpaper_wallpapers"
@@ -69,6 +72,6 @@ reg delete "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\RedPaper" /
 echo.
 echo Uninstallation completed successfully!
 echo.
-echo The wallpaper changer and scheduled task have been removed.
+echo RedPaper has been removed from your system.
 echo.
 pause

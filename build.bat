@@ -15,7 +15,7 @@ if %errorlevel% neq 0 (
 )
 
 REM Set version and output paths
-set VERSION=1.0.0
+set VERSION=1.1.0
 set OUTPUT_DIR=build
 set EXE_NAME=redpaper.exe
 set INSTALLER_NAME=RedPaper_Installer.exe

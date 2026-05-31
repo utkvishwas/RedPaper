@@ -1,3 +1,5 @@
+> <h3 style="color:tomato;font-style: italic">Known Issue: The App is currently non-functional. On May 30th, Reddit removed the public API method used to fetch data. I am actively working on a workaround.</h3>
+
 <h1 align="center">RedPaper</h1>
 <h3 align="center">A lightweight Windows system tray application that automatically changes your desktop wallpaper by fetching top images from any Reddit subreddit.</h3>
 

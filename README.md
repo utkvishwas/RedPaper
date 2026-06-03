@@ -1,5 +1,3 @@
-> <h3 style="color:tomato;font-style: italic">Known Issue: The App is currently non-functional. On May 30th, Reddit removed the public API method used to fetch data. I am actively working on a workaround.</h3>
-
 <h1 align="center">RedPaper</h1>
 <h3 align="center">A lightweight Windows system tray application that automatically changes your desktop wallpaper by fetching top images from any Reddit subreddit.</h3>
 
@@ -77,7 +75,7 @@ Right-click the RedPaper icon in the system tray to access:
    Output files:
    - `build\redpaper.exe` — Standalone executable
    - `build\RedPaper_Installer.exe` — Windows installer (requires NSIS)
-   - `build\RedPaper_v1.0.1.zip` — ZIP package
+   - `build\RedPaper_v1.2.0.zip` — ZIP package
 
 ### Installation Options
 

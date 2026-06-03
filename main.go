@@ -3,6 +3,7 @@ package main
 import (
 	_ "embed"
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"image"
 	"image/jpeg"
@@ -38,7 +39,7 @@ const (
 //go:embed installer.ico
 var iconBytes []byte
 
-var version = "1.0.0"
+var version = "1.2.0"
 
 // Config holds persistent user preferences
 type Config struct {
@@ -48,19 +49,15 @@ type Config struct {
 	LastRun       time.Time `json:"last_run"`
 }
 
-// Reddit API structures
-type RedditResponse struct {
-	Data struct {
-		Children []struct {
-			Data PostData `json:"data"`
-		} `json:"children"`
-	} `json:"data"`
+// Reddit RSS structures
+type Feed struct {
+	XMLName xml.Name `xml:"feed"`
+	Entries []Entry  `xml:"entry"`
 }
 
-type PostData struct {
-	Title string `json:"title"`
-	URL   string `json:"url"`
-	Score int    `json:"score"`
+type Entry struct {
+	Title   string `xml:"title"`
+	Content string `xml:"content"`
 }
 
 type WallpaperData struct {
@@ -132,9 +129,9 @@ func (rp *RedPaper) saveConfig() {
 	os.WriteFile(rp.configFile, data, 0644)
 }
 
-// GetTopWallpaper fetches the top image post from the configured subreddit
+// GetTopWallpaper fetches the top image post from the configured subreddit using RSS
 func (rp *RedPaper) GetTopWallpaper() (*WallpaperData, error) {
-	url := fmt.Sprintf("https://www.reddit.com/r/%s/top/.json?t=%s&limit=25",
+	url := fmt.Sprintf("https://www.reddit.com/r/%s/top/.rss?t=%s&limit=25",
 		rp.Config.Subreddit, rp.Config.TimePeriod)
 
 	req, err := http.NewRequest("GET", url, nil)
@@ -150,24 +147,27 @@ func (rp *RedPaper) GetTopWallpaper() (*WallpaperData, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("HTTP %d from Reddit API", resp.StatusCode)
+		return nil, fmt.Errorf("HTTP %d from Reddit RSS", resp.StatusCode)
 	}
 
-	var result RedditResponse
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+	var result Feed
+	if err := xml.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return nil, fmt.Errorf("decode failed: %w", err)
 	}
 
-	for _, post := range result.Data.Children {
-		if isImageURL(post.Data.URL) {
+	re := regexp.MustCompile(`href="(https://i\.redd\.it/[^"]+\.(?:jpg|jpeg|png|bmp))"`)
+
+	for _, entry := range result.Entries {
+		matches := re.FindStringSubmatch(entry.Content)
+		if len(matches) > 1 {
 			return &WallpaperData{
-				URL:   post.Data.URL,
-				Title: post.Data.Title,
-				Score: post.Data.Score,
+				URL:   matches[1],
+				Title: entry.Title,
+				Score: 0,
 			}, nil
 		}
 	}
-	return nil, fmt.Errorf("no suitable image found in r/%s", rp.Config.Subreddit)
+	return nil, fmt.Errorf("no suitable image found in r/%s RSS feed", rp.Config.Subreddit)
 }
 
 func isImageURL(url string) bool {

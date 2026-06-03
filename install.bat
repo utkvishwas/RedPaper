@@ -44,7 +44,7 @@ REM Create registry entries for Add/Remove Programs
 echo Creating registry entries...
 reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\RedPaper" /v DisplayName /t REG_SZ /d "RedPaper" /f >nul
 reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\RedPaper" /v UninstallString /t REG_SZ /d "%INSTALL_DIR%\uninstall.bat" /f >nul
-reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\RedPaper" /v DisplayVersion /t REG_SZ /d "1.0.0" /f >nul
+reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\RedPaper" /v DisplayVersion /t REG_SZ /d "1.2.0" /f >nul
 reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\RedPaper" /v Publisher /t REG_SZ /d "RedPaper" /f >nul
 
 REM Create desktop shortcut

@@ -46,12 +46,12 @@ RequestExecutionLevel admin
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 ; Version Information
-VIProductVersion "1.0.0.0"
+VIProductVersion "1.2.0.0"
 VIAddVersionKey "ProductName" "RedPaper"
 VIAddVersionKey "CompanyName" "RedPaper"
 VIAddVersionKey "LegalCopyright" "Copyright (C) 2024 RedPaper"
-VIAddVersionKey "FileVersion" "1.0.0.0"
-VIAddVersionKey "ProductVersion" "1.0.0.0"
+VIAddVersionKey "FileVersion" "1.2.0.0"
+VIAddVersionKey "ProductVersion" "1.2.0.0"
 VIAddVersionKey "FileDescription" "Automatically changes desktop wallpaper from Reddit"
 
 ; Installer Sections
@@ -86,7 +86,7 @@ Section "Main Application" SecApp
 	WriteUninstaller "$INSTDIR\Uninstall.exe"
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\RedPaper" "DisplayName" "RedPaper"
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\RedPaper" "UninstallString" "$INSTDIR\Uninstall.exe"
-	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\RedPaper" "DisplayVersion" "1.0.0"
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\RedPaper" "DisplayVersion" "1.2.0"
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\RedPaper" "Publisher" "RedPaper"
 	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\RedPaper" "NoModify" 1
 	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\RedPaper" "NoRepair" 1
